@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Подарки AI — найдём на Wildberries и Ozon за 2 минуты</title>
+  <meta name="description" content="Ответь на 6 вопросов — AI подберёт 10 идей подарков с прямыми ссылками на Wildberries, Ozon и Яндекс Маркет. Бесплатно." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #5B21B6;
+      --purple-light: #7C3AED;
+      --orange: #F97316;
+      --orange-hover: #EA6C0A;
+      --dark: #0F0A1E;
+      --gray-900: #111827;
+      --gray-600: #4B5563;
+      --gray-400: #9CA3AF;
+      --gray-100: #F3F4F6;
+      --white: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--gray-900);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, #0F0A1E 0%, #1E1065 50%, #2E1065 100%);
+      color: var(--white);
+      padding: 80px 24px 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%);
+      top: -100px; left: 50%; transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,58,237,0.3);
+      border: 1px solid rgba(124,58,237,0.5);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #C4B5FD;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      max-width: 720px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, #F97316, #FBBF24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: #C4B5FD;
+      max-width: 500px;
+      margin: 0 auto 36px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+    }
+
+    .btn-primary:hover {
+      background: var(--orange-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(249,115,22,0.5);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .hero-proof {
+      margin-top: 28px;
+      font-size: 13px;
+      color: #A78BFA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .hero-proof .stars { color: #FBBF24; letter-spacing: 1px; }
+
+    .hero-markets {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-markets span {
+      font-size: 12px;
+      color: #6D28D9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .market-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .market-pill.wb { border-color: rgba(203,0,103,0.5); color: #FF91C8; }
+    .market-pill.oz { border-color: rgba(0,144,255,0.5); color: #7DD3FC; }
+    .market-pill.ym { border-color: rgba(255,186,0,0.5); color: #FCD34D; }
+
+    /* ─── SECTION BASE ─── */
+    section { padding: 80px 24px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--purple-light);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(24px, 4vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 48px;
+    }
+
+    /* ─── PAIN ─── */
+    .pain { background: var(--gray-100); }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .pain-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid #E5E7EB;
+    }
+
+    .pain-emoji { font-size: 28px; margin-bottom: 12px; }
+
+    .pain-card p {
+      font-size: 15px;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 32px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 60px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0; top: 0;
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step p { font-size: 14px; color: var(--gray-600); line-height: 1.6; }
+
+    /* ─── ADVANTAGES ─── */
+    .adv { background: var(--dark); color: var(--white); }
+    .adv .section-title { color: var(--white); }
+    .adv .section-label { color: #A78BFA; }
+
+    .adv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .adv-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .adv-card:hover { border-color: rgba(124,58,237,0.5); }
+
+    .adv-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, rgba(91,33,182,0.6), rgba(124,58,237,0.6));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .adv-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .adv-card p { font-size: 13px; color: #9CA3AF; line-height: 1.6; }
+
+    /* ─── COMPARISON ─── */
+    .compare-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 580px) { .compare-wrap { grid-template-columns: 1fr; } }
+
+    .compare-col {
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .compare-col.bad {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+    }
+
+    .compare-col.good {
+      background: linear-gradient(135deg, #EDE9FE, #F5F3FF);
+      border: 1px solid #DDD6FE;
+    }
+
+    .compare-col h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compare-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .compare-col li { font-size: 14px; color: var(--gray-600); display: flex; gap: 10px; align-items: flex-start; }
+    .compare-col li::before { flex-shrink: 0; margin-top: 1px; }
+    .compare-col.bad li::before { content: '✗'; color: #EF4444; font-weight: 700; }
+    .compare-col.good li::before { content: '✓'; color: #7C3AED; font-weight: 700; }
+
+    /* ─── WAITLIST ─── */
+    .waitlist {
+      background: linear-gradient(135deg, #1E1065 0%, #2E1065 100%);
+      color: var(--white);
+      text-align: center;
+    }
+
+    .waitlist .section-title { color: var(--white); margin-bottom: 12px; }
+
+    .waitlist-sub {
+      font-size: 16px;
+      color: #C4B5FD;
+      margin-bottom: 36px;
+    }
+
+    .waitlist-form {
+      display: flex;
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto 16px;
+      flex-wrap: wrap;
+    }
+
+    .waitlist-form input {
+      flex: 1;
+      min-width: 200px;
+      padding: 14px 20px;
+      border-radius: 50px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    .waitlist-form input::placeholder { color: #6D28D9; }
+    .waitlist-form input:focus { border-color: rgba(124,58,237,0.8); }
+
+    .waitlist-note {
+      font-size: 12px;
+      color: #7C3AED;
+    }
+
+    .success-msg {
+      display: none;
+      background: rgba(124,58,237,0.2);
+      border: 1px solid rgba(124,58,237,0.4);
+      border-radius: 12px;
+      padding: 16px 24px;
+      font-size: 15px;
+      color: #C4B5FD;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-100);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      section { padding: 56px 20px; }
+      .hero { padding: 60px 20px 72px; }
+      .steps { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <div class="hero-badge">
+    ✨ Работает на искусственном интеллекте
+  </div>
+
+  <h1>
+    Подарок за 2 минуты —<br/>
+    AI найдёт на <span>Wildberries и Ozon</span><br/>
+    то, что точно подойдёт
+  </h1>
+
+  <p class="hero-sub">
+    Ответь на 6 вопросов и получи 10 идей<br/>
+    с прямыми ссылками. Бесплатно.
+  </p>
+
+  <a href="#waitlist" class="btn-primary">
+    Подобрать подарок →
+  </a>
+
+  <p class="hero-proof">
+    <span class="stars">★★★★★</span>
+    «Нашла подарок мужу за 3 минуты — сама удивилась» — Елена, Москва
+  </p>
+
+  <div class="hero-markets">
+    <span>Ищем на</span>
+    <div class="market-pill wb">Wildberries</div>
+    <div class="market-pill oz">Ozon</div>
+    <div class="market-pill ym">Яндекс Маркет</div>
+  </div>
+</section>
+
+
+<!-- ══════════════ БОЛЬ ══════════════ -->
+<section class="pain">
+  <div class="container">
+    <p class="section-label">Знакомо?</p>
+    <h2 class="section-title">Выбор подарка — это стресс</h2>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-emoji">😩</div>
+        <p>Потратила 2 часа на Wildberries — так ничего и не выбрала</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🤷</div>
+        <p>Не знаешь интересы коллеги или человека «без увлечений»</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">😬</div>
+        <p>Боишься подарить то, что у него уже есть</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">📋</div>
+        <p>Google выдаёт одни и те же рекламные списки из 2021 года</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ КАК РАБОТАЕТ ══════════════ -->
+<section>
+  <div class="container">
+    <p class="section-label">Как это работает</p>
+    <h2 class="section-title">Три шага вместо двух дней</h2>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Отвечаешь на 6 вопросов</h3>
+        <p>Кому дарим, возраст, интересы, бюджет, повод — и что точно не нужно, чтобы не подарить дубль</p>
+      </div>
+      <div class="step">
+        <h3>AI подбирает 10 идей</h3>
+        <p>Не общий список из интернета — конкретные идеи для этого человека с объяснением почему каждая подходит</p>
+      </div>
+      <div class="step">
+        <h3>Переходишь и покупаешь</h3>
+        <p>Прямая ссылка на Wildberries или Ozon — один клик до корзины. Никаких лишних поисков</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ ПРЕИМУЩЕСТВА ══════════════ -->
+<section class="adv">
+  <div class="container">
+    <p class="section-label">Почему это работает</p>
+    <h2 class="section-title">Не очередной список из интернета</h2>
+
+    <div class="adv-grid">
+      <div class="adv-card">
+        <div class="adv-icon">🇷🇺</div>
+        <h3>Только российские маркетплейсы</h3>
+        <p>Wildberries, Ozon и Яндекс Маркет — то, что реально купить с доставкой по России</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">💡</div>
+        <h3>Объясняем почему подходит</h3>
+        <p>Каждая идея — с коротким объяснением под конкретного человека, не просто названия товаров</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">🚫</div>
+        <h3>Вопрос «что исключить»</h3>
+        <p>Скажи что у него уже есть — AI уберёт это из рекомендаций. Никаких дублей</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">⚡</div>
+        <h3>2 минуты вместо 2 дней</h3>
+        <p>Пока Google и Яндекс выдают рекламу, мы уже показываем ссылки на нужный товар</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">🎯</div>
+        <h3>Работает для «сложных» людей</h3>
+        <p>Коллеги, родственники без хобби, люди с нишевыми увлечениями — AI справляется с любым профилем</p>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">🎁</div>
+        <h3>Полностью бесплатно</h3>
+        <p>Для пользователя сервис всегда бесплатный. Зарабатываем на партнёрских ссылках, не на тебе</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ СРАВНЕНИЕ ══════════════ -->
+<section>
+  <div class="container">
+    <p class="section-label">Сравнение</p>
+    <h2 class="section-title">Гугл vs AI-подборщик</h2>
+
+    <div class="compare-wrap">
+      <div class="compare-col bad">
+        <h3>🔍 Поиск в Google / WB</h3>
+        <ul>
+          <li>Рекламные статьи с устаревшими списками</li>
+          <li>Сотни карточек без фильтра под человека</li>
+          <li>Не знает кому и зачем — даёт общее</li>
+          <li>Не учитывает что уже есть у получателя</li>
+          <li>Уходит 2+ часа времени</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <h3>✨ AI-подборщик подарков</h3>
+        <ul>
+          <li>Идеи под конкретного человека с учётом возраста, интересов и бюджета</li>
+          <li>10 отобранных вариантов — без лишнего шума</li>
+          <li>Объяснение почему каждая идея подходит</li>
+          <li>Исключает то, что уже есть у получателя</li>
+          <li>Результат за 2 минуты, ссылка на покупку сразу</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ ВАЙТЛИСТ ══════════════ -->
+<section class="waitlist" id="waitlist">
+  <div class="container">
+    <p class="section-label">Ранний доступ</p>
+    <h2 class="section-title">Запускаемся совсем скоро</h2>
+    <p class="waitlist-sub">
+      Оставь email — пришлём первой,<br/>как только откроем доступ
+    </p>
+
+    <div id="form-wrap">
+      <form class="waitlist-form" onsubmit="handleSubmit(event)">
+        <input
+          type="email"
+          id="email-input"
+          placeholder="твой@email.ru"
+          required
+        />
+        <button type="submit" class="btn-primary">
+          Хочу попробовать →
+        </button>
+      </form>
+      <p class="waitlist-note">Без спама. Только одно письмо о запуске.</p>
+    </div>
+
+    <div class="success-msg" id="success-msg">
+      🎉 Отлично! Пришлём тебе письмо, как только откроем доступ. Следи за почтой.
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <p>© 2026 AI-подборщик подарков · Бесплатно для пользователей · Работает на базе Claude AI</p>
+</footer>
+
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('email-input').value;
+
+    // Сохраняем email локально (для демо)
+    const emails = JSON.parse(localStorage.getItem('waitlist') || '[]');
+    if (!emails.includes(email)) emails.push(email);
+    localStorage.setItem('waitlist', JSON.stringify(emails));
+
+    // Показываем успех
+    document.getElementById('form-wrap').style.display = 'none';
+    const msg = document.getElementById('success-msg');
+    msg.style.display = 'block';
+
+    // Опционально: отправить на бесплатный сервис форм
+    // fetch('https://formspree.io/f/YOUR_ID', { method:'POST', body: new FormData(e.target) });
+  }
+
+  // Плавная прокрутка
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
