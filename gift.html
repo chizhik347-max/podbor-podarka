@@ -254,6 +254,10 @@
           <div class="chip" data-val="видеоигры">Игры</div>
           <div class="chip" data-val="музыка">Музыка</div>
           <div class="chip" data-val="дом и уют">Дом</div>
+          <div class="chip" data-val="здоровье и wellness">Здоровье</div>
+          <div class="chip" data-val="автомобили">Авто</div>
+          <div class="chip" data-val="животные и питомцы">Животные</div>
+          <div class="chip" data-val="дети и родительство">Дети</div>
           <div class="chip" data-val="нет явных увлечений">Без хобби</div>
         </div>
       </div>
@@ -430,8 +434,8 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
         <div class="gift-name">${g.name}</div>
         <div class="gift-why">${g.why}</div>
         <div class="gift-links">
-          <a class="market-link wb" href="https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(g.search_wb)}" target="_blank" rel="noopener">Wildberries →</a>
-          <a class="market-link oz" href="https://www.ozon.ru/search/?text=${encodeURIComponent(g.search_ozon)}" target="_blank" rel="noopener">Ozon →</a>
+          <a class="market-link wb" href="https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(g.search_wb)}&xsearch=true" target="_blank" rel="noopener">Wildberries →</a>
+          <a class="market-link oz" href="https://www.ozon.ru/search/?text=${encodeURIComponent(g.search_ozon)}&from_global=true" target="_blank" rel="noopener">Ozon →</a>
           <a class="market-link ym" href="https://market.yandex.ru/search?text=${encodeURIComponent(g.search_ym)}" target="_blank" rel="noopener">Яндекс Маркет →</a>
         </div>
       </div>
