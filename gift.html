@@ -210,11 +210,6 @@
       <h1 class="form-title">Расскажи о получателе</h1>
       <p class="form-sub">6 вопросов → 10 идей с ссылками на WB и Ozon</p>
 
-      <div class="api-block">
-        <label>Ключ OpenRouter API</label>
-        <input type="password" id="apiKey" placeholder="sk-or-..." autocomplete="off" />
-        <p class="api-hint">Бесплатно на openrouter.ai → Keys → Create Key</p>
-      </div>
 
       <div class="question">
         <label>1. Кому дарим?</label>
@@ -335,7 +330,7 @@
   }
 
   async function submitForm() {
-    const apiKey = document.getElementById('apiKey').value.trim();
+    const apiKey = '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';
     const who      = getSelected('who');
     const age      = getSelected('age');
     const interests = getSelected('interests');
@@ -344,7 +339,6 @@
     const exclude  = document.getElementById('exclude').value.trim();
 
     const missing = [];
-    if (!apiKey)   missing.push('API ключ');
     if (!who)      missing.push('кому дарим');
     if (!age)      missing.push('возраст');
     if (!budget)   missing.push('бюджет');
@@ -413,6 +407,12 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
       if (!parsed.gifts?.length) throw new Error('Список подарков пустой, попробуй ещё раз');
 
       showResults(parsed.gifts, { who, age, occasion, budget });
+
+      // Логируем в Google Sheets
+      fetch('https://script.google.com/macros/s/AKfycby4z9gHuYTyvEsCVOLhmjtGL2KmK7PxpO4j-v_-sXdC337NCWbhSSePejFH9c1Pew98/exec', {
+        method: 'POST',
+        body: JSON.stringify({ who, age, interests, budget, occasion, exclude })
+      }).catch(() => {});
 
     } catch (e) {
       showLoading(false);
