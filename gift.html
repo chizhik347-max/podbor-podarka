@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Подобрать подарок — AI-подборщик</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --purple: #5B21B6;
+      --purple-light: #7C3AED;
+      --orange: #F97316;
+      --orange-hover: #EA6C0A;
+      --dark: #0F0A1E;
+      --gray-900: #111827;
+      --gray-600: #4B5563;
+      --gray-100: #F3F4F6;
+      --white: #FFFFFF;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-100); min-height: 100vh; color: var(--gray-900); }
+
+    header {
+      background: var(--dark);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header .logo { color: white; font-size: 16px; font-weight: 700; text-decoration: none; }
+    header a.back { color: #C4B5FD; font-size: 13px; text-decoration: none; }
+
+    main { max-width: 600px; margin: 32px auto; padding: 0 16px 60px; }
+
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .form-title { font-size: 21px; font-weight: 800; margin-bottom: 6px; }
+    .form-sub { color: var(--gray-600); font-size: 14px; margin-bottom: 28px; }
+
+    .api-block {
+      background: #F9F5FF;
+      border: 1px solid #E9D5FF;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 28px;
+    }
+    .api-block label { display: block; font-size: 12px; color: var(--purple); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.03em; text-transform: uppercase; }
+    .api-block input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #DDD6FE;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      color: var(--gray-900);
+      background: white;
+    }
+    .api-block .api-hint { font-size: 11px; color: #7C3AED; margin-top: 6px; }
+
+    .question { margin-bottom: 22px; }
+    .question > label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+    .optional { font-weight: 400; color: var(--gray-600); font-size: 13px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 8px 16px;
+      border: 2px solid #E5E7EB;
+      border-radius: 100px;
+      font-size: 14px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.15s;
+      user-select: none;
+      font-family: inherit;
+    }
+    .chip:hover { border-color: var(--purple-light); color: var(--purple-light); }
+    .chip.selected { border-color: var(--purple); background: var(--purple); color: white; }
+
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      color: var(--gray-900);
+      line-height: 1.5;
+    }
+    textarea:focus { border-color: var(--purple-light); }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 8px;
+      box-shadow: 0 8px 24px rgba(249,115,22,0.3);
+    }
+    .btn-submit:hover { background: var(--orange-hover); transform: translateY(-2px); }
+    .btn-submit:disabled { background: #9CA3AF; box-shadow: none; transform: none; cursor: not-allowed; }
+
+    .error-msg {
+      display: none;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #DC2626;
+      font-size: 14px;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    /* Loading */
+    .loading { display: none; text-align: center; padding: 60px 0; }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid #E9D5FF;
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { color: var(--gray-600); font-size: 15px; }
+
+    /* Results */
+    .results { display: none; }
+    .results-header { margin-bottom: 20px; }
+    .results-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .results-sub { color: var(--gray-600); font-size: 13px; }
+
+    .gift-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .gift-num { font-size: 11px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .gift-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .gift-why { font-size: 14px; color: var(--gray-600); margin-bottom: 14px; line-height: 1.55; }
+    .gift-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .market-link {
+      padding: 7px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .market-link:hover { opacity: 0.82; }
+    .market-link.wb { background: #CB11AB; color: white; }
+    .market-link.oz { background: #005BFF; color: white; }
+    .market-link.ym { background: #FFC010; color: #111; }
+
+    .btn-restart {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: white;
+      color: var(--purple);
+      border: 2px solid var(--purple);
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 20px;
+      transition: background 0.15s;
+    }
+    .btn-restart:hover { background: #F9F5FF; }
+
+    @media (max-width: 480px) {
+      .form-card { padding: 20px 16px; }
+      .market-link { font-size: 12px; padding: 6px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">🎁 Подарки AI</a>
+  <a class="back" href="index.html">← На главную</a>
+</header>
+
+<main>
+
+  <!-- ФОРМА -->
+  <div id="formSection">
+    <div class="form-card">
+      <h1 class="form-title">Расскажи о получателе</h1>
+      <p class="form-sub">6 вопросов → 10 идей с ссылками на WB и Ozon</p>
+
+      <div class="api-block">
+        <label>Ключ Google Gemini API</label>
+        <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off" />
+        <p class="api-hint">Бесплатно на aistudio.google.com → Get API key</p>
+      </div>
+
+      <div class="question">
+        <label>1. Кому дарим?</label>
+        <div class="chips" data-q="who">
+          <div class="chip" data-val="маме">Маме</div>
+          <div class="chip" data-val="папе">Папе</div>
+          <div class="chip" data-val="мужу">Мужу</div>
+          <div class="chip" data-val="жене">Жене</div>
+          <div class="chip" data-val="другу">Другу</div>
+          <div class="chip" data-val="подруге">Подруге</div>
+          <div class="chip" data-val="коллеге">Коллеге</div>
+          <div class="chip" data-val="ребёнку">Ребёнку</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>2. Сколько лет?</label>
+        <div class="chips" data-q="age">
+          <div class="chip" data-val="до 12 лет">До 12</div>
+          <div class="chip" data-val="12–18 лет">12–18</div>
+          <div class="chip" data-val="18–30 лет">18–30</div>
+          <div class="chip" data-val="30–45 лет">30–45</div>
+          <div class="chip" data-val="45–60 лет">45–60</div>
+          <div class="chip" data-val="60+ лет">60+</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>3. Интересы <span class="optional">(можно несколько)</span></label>
+        <div class="chips" data-q="interests" data-multi="true">
+          <div class="chip" data-val="спорт и фитнес">Спорт</div>
+          <div class="chip" data-val="кулинария и еда">Кулинария</div>
+          <div class="chip" data-val="путешествия">Путешествия</div>
+          <div class="chip" data-val="технологии и гаджеты">Гаджеты</div>
+          <div class="chip" data-val="красота и уход за собой">Красота</div>
+          <div class="chip" data-val="книги и саморазвитие">Книги</div>
+          <div class="chip" data-val="видеоигры">Игры</div>
+          <div class="chip" data-val="музыка">Музыка</div>
+          <div class="chip" data-val="дом и уют">Дом</div>
+          <div class="chip" data-val="нет явных увлечений">Без хобби</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>4. Бюджет</label>
+        <div class="chips" data-q="budget">
+          <div class="chip" data-val="до 1000 рублей">до 1 000 ₽</div>
+          <div class="chip" data-val="1000–3000 рублей">1–3 тыс ₽</div>
+          <div class="chip" data-val="3000–7000 рублей">3–7 тыс ₽</div>
+          <div class="chip" data-val="7000–15000 рублей">7–15 тыс ₽</div>
+          <div class="chip" data-val="больше 15000 рублей">15 000+ ₽</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>5. Повод</label>
+        <div class="chips" data-q="occasion">
+          <div class="chip" data-val="день рождения">День рождения</div>
+          <div class="chip" data-val="Новый год">Новый год</div>
+          <div class="chip" data-val="8 марта">8 марта</div>
+          <div class="chip" data-val="23 февраля">23 февраля</div>
+          <div class="chip" data-val="свадьба или годовщина">Свадьба</div>
+          <div class="chip" data-val="просто так">Просто так</div>
+        </div>
+      </div>
+
+      <div class="question">
+        <label>6. Что точно не надо? <span class="optional">(необязательно)</span></label>
+        <textarea id="exclude" rows="2" placeholder="Например: уже есть кофемашина, не любит сладкое, аллергия на косметику"></textarea>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">Подобрать 10 идей →</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- ЗАГРУЗКА -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>AI подбирает идеи под получателя…</p>
+  </div>
+
+  <!-- РЕЗУЛЬТАТЫ -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <h2 class="results-title">🎁 Вот что подойдёт</h2>
+      <p class="results-sub" id="resultsSub"></p>
+    </div>
+    <div id="giftList"></div>
+    <button class="btn-restart" onclick="restart()">← Подобрать ещё раз</button>
+  </div>
+
+</main>
+
+<script>
+  // Chip click handling
+  document.querySelectorAll('.chips').forEach(group => {
+    const multi = group.dataset.multi === 'true';
+    group.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (multi) {
+          chip.classList.toggle('selected');
+        } else {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        }
+      });
+    });
+  });
+
+  function getSelected(q) {
+    return Array.from(document.querySelectorAll(`.chips[data-q="${q}"] .chip.selected`))
+      .map(c => c.dataset.val).join(', ');
+  }
+
+  async function submitForm() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const who      = getSelected('who');
+    const age      = getSelected('age');
+    const interests = getSelected('interests');
+    const budget   = getSelected('budget');
+    const occasion = getSelected('occasion');
+    const exclude  = document.getElementById('exclude').value.trim();
+
+    const missing = [];
+    if (!apiKey)   missing.push('API ключ');
+    if (!who)      missing.push('кому дарим');
+    if (!age)      missing.push('возраст');
+    if (!budget)   missing.push('бюджет');
+    if (!occasion) missing.push('повод');
+    if (missing.length) { showError('Пожалуйста, заполни: ' + missing.join(', ')); return; }
+
+    hideError();
+    showLoading(true);
+
+    const prompt = `Ты — эксперт по подаркам для российских маркетплейсов (Wildberries, Ozon, Яндекс Маркет).
+
+Подбери ровно 10 идей подарков:
+- Кому: ${who}
+- Возраст: ${age}
+- Интересы: ${interests || 'не указаны, подбери универсальное'}
+- Бюджет: ${budget}
+- Повод: ${occasion}
+${exclude ? `- Исключить: ${exclude}` : ''}
+
+Требования:
+- Подарки реально продаются на WB или Ozon в указанном бюджете
+- Для каждого — 1-2 предложения почему подходит именно этому человеку
+- Поисковые запросы — конкретные, такие которые хорошо находят товар
+
+Ответь ТОЛЬКО валидным JSON без лишнего текста:
+{
+  "gifts": [
+    {
+      "name": "Название подарка",
+      "why": "Почему подходит этому человеку (1-2 предложения)",
+      "search_wb": "поисковый запрос для Wildberries",
+      "search_ozon": "поисковый запрос для Ozon",
+      "search_ym": "поисковый запрос для Яндекс Маркет"
+    }
+  ]
+}`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+          })
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Ошибка сервера ${res.status}`);
+      }
+
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('AI вернул неожиданный ответ, попробуй ещё раз');
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (!parsed.gifts?.length) throw new Error('Список подарков пустой, попробуй ещё раз');
+
+      showResults(parsed.gifts, { who, age, occasion, budget });
+
+    } catch (e) {
+      showLoading(false);
+      showError('Ошибка: ' + e.message);
+    }
+  }
+
+  function showResults(gifts, params) {
+    document.getElementById('loading').style.display = 'none';
+    const results = document.getElementById('results');
+    results.style.display = 'block';
+
+    document.getElementById('resultsSub').textContent =
+      [params.occasion, params.who, params.age, params.budget].filter(Boolean).join(' · ');
+
+    document.getElementById('giftList').innerHTML = gifts.map((g, i) => `
+      <div class="gift-card">
+        <div class="gift-num">Идея ${i + 1}</div>
+        <div class="gift-name">${g.name}</div>
+        <div class="gift-why">${g.why}</div>
+        <div class="gift-links">
+          <a class="market-link wb" href="https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(g.search_wb)}" target="_blank" rel="noopener">Wildberries →</a>
+          <a class="market-link oz" href="https://www.ozon.ru/search/?text=${encodeURIComponent(g.search_ozon)}" target="_blank" rel="noopener">Ozon →</a>
+          <a class="market-link ym" href="https://market.yandex.ru/search?text=${encodeURIComponent(g.search_ym)}" target="_blank" rel="noopener">Яндекс Маркет →</a>
+        </div>
+      </div>
+    `).join('');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showLoading(show) {
+    document.getElementById('formSection').style.display = show ? 'none' : 'block';
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+    document.getElementById('results').style.display = 'none';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('errorMsg').style.display = 'none';
+  }
+
+  function restart() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('formSection').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
