@@ -388,7 +388,7 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
           'X-Title': 'Podarki AI'
         },
         body: JSON.stringify({
-          model: 'google/gemma-4-31b-it:free',
+          model: 'openai/gpt-oss-20b:free',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.7,
           max_tokens: 2048
@@ -396,14 +396,15 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        const msg = data.error?.message || data.error?.code || JSON.stringify(data.error) || `Ошибка ${res.status}`;
+      if (!res.ok || data.error) {
+        const msg = data.error?.message || data.error?.code || JSON.stringify(data) || `Ошибка ${res.status}`;
         throw new Error(msg);
       }
 
       const text = data.choices?.[0]?.message?.content || '';
+      if (!text) throw new Error('Пустой ответ от модели. Полный ответ: ' + JSON.stringify(data).slice(0, 300));
       const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('AI вернул неожиданный ответ, попробуй ещё раз');
+      if (!jsonMatch) throw new Error('Ответ без JSON: ' + text.slice(0, 200));
       const parsed = JSON.parse(jsonMatch[0]);
       if (!parsed.gifts?.length) throw new Error('Список подарков пустой, попробуй ещё раз');
 
