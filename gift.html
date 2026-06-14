@@ -211,9 +211,9 @@
       <p class="form-sub">6 вопросов → 10 идей с ссылками на WB и Ozon</p>
 
       <div class="api-block">
-        <label>Ключ Google Gemini API</label>
-        <input type="password" id="apiKey" placeholder="AIzaSy..." autocomplete="off" />
-        <p class="api-hint">Бесплатно на aistudio.google.com → Get API key</p>
+        <label>Ключ OpenRouter API</label>
+        <input type="password" id="apiKey" placeholder="sk-or-..." autocomplete="off" />
+        <p class="api-hint">Бесплатно на openrouter.ai → Keys → Create Key</p>
       </div>
 
       <div class="question">
@@ -379,17 +379,21 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
 }`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
-          })
-        }
-      );
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://chizhik347-max.github.io/podbor-podarka',
+          'X-Title': 'Подарки AI'
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: 2048
+        })
+      });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -397,7 +401,7 @@ ${exclude ? `- Исключить: ${exclude}` : ''}
       }
 
       const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const text = data.choices?.[0]?.message?.content || '';
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('AI вернул неожиданный ответ, попробуй ещё раз');
       const parsed = JSON.parse(jsonMatch[0]);
